@@ -1505,15 +1505,23 @@ export function NetworkDiagram({
               if (!cluster) return null;
 
               const gwCenterX = cpe.gwLeft + 35;
-              const cloudBottom = getCloudBottomY(cluster, gwCenterX, CPE_Y);
+              const gwCenterY = cpe.gwY + 17.5;
+
+              // Exact aansluitpunt op de rand van de wolk naar het gateway center
+              const cloudPoint = getCloudConnectionPoint(cluster, gwCenterX, gwCenterY, CPE_Y);
+
+              // Exacte rand van de gateway ovaal (rx=35, ry=17.5) in de richting van het wolk-aansluitpunt
+              const angleGwToCloud = Math.atan2(cloudPoint.y - gwCenterY, cloudPoint.x - gwCenterX);
+              const gwBorderX = gwCenterX + 35 * Math.cos(angleGwToCloud);
+              const gwBorderY = gwCenterY + 17.5 * Math.sin(angleGwToCloud);
 
               return (
                 <line 
                   key={`gw-line-${cpe.id}`} 
-                  x1={gwCenterX} 
-                  y1={cloudBottom - 2} 
-                  x2={gwCenterX} 
-                  y2={cpe.gwY + 2} 
+                  x1={cloudPoint.x} 
+                  y1={cloudPoint.y} 
+                  x2={gwBorderX} 
+                  y2={gwBorderY} 
                   stroke={lineColor} 
                   strokeWidth="2" 
                 />
@@ -1554,7 +1562,7 @@ export function NetworkDiagram({
                  const angleGwToPbx = Math.atan2(pbxCenterY - gwCenterY, pbxCenterX - gwCenterX);
                  const gwBorderX = gwCenterX + 35 * Math.cos(angleGwToPbx);
                  const gwBorderY = gwCenterY + 17.5 * Math.sin(angleGwToPbx);
-                 const pbxPoint = getBoxBorderPoint(pbxCenterX, pbxCenterY, 40, 36, gwBorderX, gwBorderY);
+                 const pbxPoint = getBoxBorderPoint(pbxCenterX, pbxCenterY, 48, 48, gwBorderX, gwBorderY);
                  lines.push(
                    <line 
                      key={`pbx-routed-${pbx.id}`} 
